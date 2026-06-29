@@ -32,11 +32,12 @@ struct ProgressParser {
         seconds: Substring,
         centiseconds: Substring
     ) -> Double? {
+        // `Double` has no Substring initializer; convert via String.
         guard
-            let hh = Double(hours),
-            let mm = Double(minutes),
-            let ss = Double(seconds),
-            let cs = Double(centiseconds)
+            let hh = Double(String(hours)),
+            let mm = Double(String(minutes)),
+            let ss = Double(String(seconds)),
+            let cs = Double(String(centiseconds))
         else { return nil }
         return (hh * 3600.0) + (mm * 60.0) + ss + (cs / 100.0)
     }

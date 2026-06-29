@@ -34,31 +34,20 @@ struct DropZoneView: View {
     private func handleDrop(providers: [NSItemProvider]) -> Bool {
         guard !providers.isEmpty else { return false }
 
-        Task {
-            let urls = await collectURLs(from: providers)
-            await MainActor.run { engine.enqueue(droppedURLs: urls) }
+        // handleDrop already runs on the main actor. We iterate the providers
+        // here (never handing the non-Sendable NSItemProvider to a task) and let
+        // each load complete independently. Capture `engine` (a Sendable
+        // @MainActor object) by value so the completion closure does not capture
+        // the View; only Sendable URLs cross back to the main actor.
+        let engine = self.engine
+        for provider in providers {
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                guard let url else { return }
+                Task { @MainActor in
+                    engine.enqueue(droppedURLs: [url])
+                }
+            }
         }
         return true
-    }
-
-    private func collectURLs(from providers: [NSItemProvider]) async -> [URL] {
-        await withTaskGroup(of: URL?.self) { group in
-            for provider in providers {
-                group.addTask { await Self.loadURL(from: provider) }
-            }
-            var results: [URL] = []
-            for await maybeURL in group {
-                if let url = maybeURL { results.append(url) }
-            }
-            return results
-        }
-    }
-
-    private static func loadURL(from provider: NSItemProvider) async -> URL? {
-        await withCheckedContinuation { continuation in
-            _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                continuation.resume(returning: url)
-            }
-        }
     }
 }

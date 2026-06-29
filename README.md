@@ -59,6 +59,10 @@ brew install ffmpeg     # skip if you already have it
 git clone <this repo> && cd Opus2Wav
 ```
 
+> Requires a Swift toolchain. Xcode **Command Line Tools** alone are enough to
+> build and run the app (`xcode-select --install`); full Xcode is only needed
+> for SwiftUI previews and `swift test`.
+
 ### Option A — the app (drag & drop) ⭐
 
 Build a real double-clickable `Opus2Wav.app` (no Xcode needed):
