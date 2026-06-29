@@ -1,0 +1,24 @@
+# Swift / Xcode build artifacts
+.build/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+Build/
+*.xcuserstate
+xcuserdata/
+
+# Static ffmpeg binary lives outside source control; fetched via scripts/fetch-ffmpeg.sh
+Sources/Opus2Wav/Resources/ffmpeg
+
+# macOS
+.DS_Store
+
+# Packages / dependencies
+Package.resolved
+Packages/
+
+# Editors
+.vscode/
+.idea/
+*.swp
