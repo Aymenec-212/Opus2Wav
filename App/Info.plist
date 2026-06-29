@@ -16,6 +16,8 @@
     <string>APPL</string>
     <key>CFBundleExecutable</key>
     <string>Opus2Wav</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>LSApplicationCategoryType</key>

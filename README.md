@@ -42,6 +42,7 @@ App/
 ├── Info.plist                    # bundle metadata
 └── Opus2Wav.entitlements         # sandbox + user-selected R/W + bookmark scope
 scripts/
+├── build-app.sh                  # assemble a double-clickable Opus2Wav.app (no Xcode)
 ├── fetch-ffmpeg.sh               # lipo arm64 + x86_64 → universal binary
 └── codesign-bundle.sh            # signs ffmpeg + .app with matching credentials
 Package.swift                     # SwiftPM manifest (macOS 14+)
@@ -58,7 +59,24 @@ brew install ffmpeg     # skip if you already have it
 git clone <this repo> && cd Opus2Wav
 ```
 
-### Option A — headless CLI (most reliable; no display needed)
+### Option A — the app (drag & drop) ⭐
+
+Build a real double-clickable `Opus2Wav.app` (no Xcode needed):
+
+```bash
+./scripts/build-app.sh
+open ./Opus2Wav.app
+```
+
+Then just **drag `.opus` files (or whole folders) onto the drop zone and
+click Start**. Converted `16 kHz · mono · 16-bit PCM` `.wav` files land in
+your **Downloads** folder by default (use the output picker to change it).
+Move `Opus2Wav.app` into `/Applications` if you want it permanently.
+
+> Prefer not to build a bundle? `swift run Opus2Wav` opens the same window
+> straight from the terminal — drag files in exactly the same way.
+
+### Option B — headless CLI (no display; for SSH / scripts / CI)
 
 ```bash
 # Convert a single file (writes next to the source):
@@ -68,22 +86,9 @@ swift run Opus2Wav --cli recording.opus
 swift run Opus2Wav --cli ~/darija-corpus -o ~/wavs
 ```
 
-Every input is converted to `16 kHz · mono · 16-bit PCM .wav`. Folders are
-walked recursively for `.opus`; name collisions get a short unique suffix so
-nothing is overwritten. Exit code is non-zero if any file fails. Run
-`swift run Opus2Wav --cli --help` for all options. This path works over SSH
-and in scripts/CI.
-
-### Option B — GUI
-
-```bash
-swift run Opus2Wav
-```
-
-The window opens, you drag `.opus` files (or whole folders) onto the drop
-zone, optionally pick an output folder, and hit **Start**. Converted
-`16 kHz · mono · 16-bit PCM` `.wav` files land in your **Downloads** folder
-by default.
+Folders are walked recursively for `.opus`; name collisions get a short
+unique suffix so nothing is overwritten. Exit code is non-zero if any file
+fails. Run `swift run Opus2Wav --cli --help` for all options.
 
 No bundled binary required for this path: `FFmpegRunner.locateBundledBinary()`
 auto-discovers ffmpeg in priority order —

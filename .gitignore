@@ -8,6 +8,9 @@ Build/
 *.xcuserstate
 xcuserdata/
 
+# Generated app bundle from scripts/build-app.sh
+Opus2Wav.app/
+
 # Static ffmpeg binary lives outside source control; fetched via scripts/fetch-ffmpeg.sh
 Sources/Opus2Wav/Resources/ffmpeg
 
