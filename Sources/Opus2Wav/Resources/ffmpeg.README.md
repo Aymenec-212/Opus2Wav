@@ -12,8 +12,14 @@ The simplest path is:
 which downloads and `lipo`-merges the two architecture slices. See the script
 header for the upstream URL environment variables.
 
-After bundling, the binary is loaded via `Bundle.module.url(forResource: "ffmpeg", withExtension: nil)`
-(SwiftPM) or `Bundle.main.url(...)` (when wrapped in an Xcode app target with
-the file added to `.app/Contents/Resources/`).
+This directory is excluded from the SwiftPM target (see `Package.swift`), so
+dropping the binary here will not break `swift build` / `swift run`.
+`FFmpegRunner.locateBundledBinary()` finds it directly on disk via the
+`Sources/Opus2Wav/Resources/ffmpeg` dev path. When wrapped in an Xcode app
+target, instead add the binary to **Copy Bundle Resources** so it resolves via
+`Bundle.main`.
+
+> For just converting files locally you usually don't need this at all — an
+> ffmpeg on your `PATH` (e.g. `brew install ffmpeg`) is auto-discovered.
 
 For distribution: see `scripts/codesign-bundle.sh`.

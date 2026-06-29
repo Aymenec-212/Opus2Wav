@@ -29,7 +29,8 @@ ffmpeg -y -i <in.opus> -acodec pcm_s16le -ac 1 -ar 16000 <out.wav>
 
 ```
 Sources/Opus2Wav/
-├── Opus2WavApp.swift             # SwiftUI app entry
+├── Opus2WavApp.swift             # entry point: branches to CLI or SwiftUI app
+├── CLI/                          # CLIRunner — headless `--cli` conversion path
 ├── Models/                       # ConversionTask, ConversionStatus
 ├── Orchestration/                # FFmpegRunner, ConversionEngine, ProgressParser, FileDiscovery
 ├── UI/                           # ContentView, DropZoneView, TaskListView, TaskRowView, ControlBarView
@@ -48,7 +49,56 @@ Package.swift                     # SwiftPM manifest (macOS 14+)
 
 ---
 
-## Build
+## Quickest local path (just convert some files)
+
+On macOS, with [ffmpeg](https://ffmpeg.org) available anywhere standard:
+
+```bash
+brew install ffmpeg     # skip if you already have it
+git clone <this repo> && cd Opus2Wav
+```
+
+### Option A — headless CLI (most reliable; no display needed)
+
+```bash
+# Convert a single file (writes next to the source):
+swift run Opus2Wav --cli recording.opus
+
+# Convert a whole folder (recursive) into a chosen output directory:
+swift run Opus2Wav --cli ~/darija-corpus -o ~/wavs
+```
+
+Every input is converted to `16 kHz · mono · 16-bit PCM .wav`. Folders are
+walked recursively for `.opus`; name collisions get a short unique suffix so
+nothing is overwritten. Exit code is non-zero if any file fails. Run
+`swift run Opus2Wav --cli --help` for all options. This path works over SSH
+and in scripts/CI.
+
+### Option B — GUI
+
+```bash
+swift run Opus2Wav
+```
+
+The window opens, you drag `.opus` files (or whole folders) onto the drop
+zone, optionally pick an output folder, and hit **Start**. Converted
+`16 kHz · mono · 16-bit PCM` `.wav` files land in your **Downloads** folder
+by default.
+
+No bundled binary required for this path: `FFmpegRunner.locateBundledBinary()`
+auto-discovers ffmpeg in priority order —
+
+1. `OPUS2WAV_FFMPEG=/abs/path/to/ffmpeg` (explicit override),
+2. a binary bundled in the `.app` (`Bundle.main`),
+3. `./Sources/Opus2Wav/Resources/ffmpeg` (the fetch script's output),
+4. Homebrew / MacPorts / `/usr/bin` standard locations,
+5. anything named `ffmpeg` on your `PATH`.
+
+So `brew install ffmpeg` is enough to make `swift run` work end to end.
+
+---
+
+## Build (bundled / distributable)
 
 ### 1. Provision the embedded `ffmpeg`
 
@@ -62,17 +112,7 @@ Pin to a specific upstream release and verify the SHA-256 before bundling.
 Builds from [osxexperts.net](https://www.osxexperts.net) and
 [evermeet.cx/ffmpeg](https://evermeet.cx/ffmpeg/) are commonly used.
 
-### 2a. Iterate from the command line (SwiftPM)
-
-```bash
-swift run Opus2Wav
-```
-
-For dev convenience, `FFmpegRunner.locateBundledBinary()` also honours
-`OPUS2WAV_FFMPEG=/abs/path/to/ffmpeg` and falls back to
-`./Sources/Opus2Wav/Resources/ffmpeg` relative to the package root.
-
-### 2b. Ship a sandboxed `.app` (recommended for distribution)
+### 2. Ship a sandboxed `.app` (recommended for distribution)
 
 Wrap the package in an Xcode macOS app target:
 

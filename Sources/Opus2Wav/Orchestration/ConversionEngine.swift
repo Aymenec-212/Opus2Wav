@@ -22,7 +22,8 @@ final class ConversionEngine: ObservableObject {
             self.lastEngineError = nil
         } else {
             self.runner = nil
-            self.lastEngineError = "Embedded ffmpeg binary not found in Resources. See README."
+            self.lastEngineError = "ffmpeg not found. Install it (e.g. `brew install ffmpeg`), "
+                + "set OPUS2WAV_FFMPEG=/path/to/ffmpeg, or run scripts/fetch-ffmpeg.sh. See README."
         }
     }
 

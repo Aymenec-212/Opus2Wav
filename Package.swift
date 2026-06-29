@@ -13,8 +13,12 @@ let package = Package(
         .executableTarget(
             name: "Opus2Wav",
             path: "Sources/Opus2Wav",
+            // The Resources directory holds only the docs placeholder and the
+            // (gitignored) static ffmpeg binary fetched by scripts/fetch-ffmpeg.sh.
+            // Neither is a SwiftPM-managed resource — excluding the whole folder
+            // keeps `swift build` from erroring on the unhandled binary file.
             exclude: [
-                "Resources/ffmpeg.README.md"
+                "Resources"
             ]
         ),
         .testTarget(

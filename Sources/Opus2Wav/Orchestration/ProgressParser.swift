@@ -1,8 +1,10 @@
 import Foundation
 
 struct ProgressParser {
-    private static let durationRegex = /Duration:\s*(\d{2}):(\d{2}):(\d{2})\.(\d{2})/
-    private static let timeRegex = /time=(\d{2}):(\d{2}):(\d{2})\.(\d{2})/
+    // Extended `#/.../#` literals compile without the BareSlashRegexLiterals
+    // upcoming-feature flag, unlike the bare `/.../` form.
+    private static let durationRegex = #/Duration:\s*(\d{2}):(\d{2}):(\d{2})\.(\d{2})/#
+    private static let timeRegex = #/time=(\d{2}):(\d{2}):(\d{2})\.(\d{2})/#
 
     static func extractDurationSeconds(from chunk: String) -> Double? {
         guard let match = chunk.firstMatch(of: durationRegex) else { return nil }
